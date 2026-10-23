@@ -104,7 +104,7 @@
             <label class="block text-xs font-bold text-red-600 uppercase tracking-wide mb-1">PIN Sesi Ujian (Siswa)</label>
             <div class="relative">
               <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-red-500"><i class="fas fa-key"></i></span>
-              <input type="text" id="pin" name="pin" class="pl-10 block w-full px-4 py-2.5 text-sm border border-red-300 rounded-lg focus:ring-2 focus:ring-red-500 bg-red-50/50 tracking-widest font-bold text-slate-800" placeholder="123456" required>
+              <input type="text" id="pin" name="pin" class="pl-10 block w-full px-4 py-2.5 text-sm border border-red-300 rounded-lg focus:ring-2 focus:ring-red-500 bg-red-50/50 tracking-widest font-bold text-slate-800" placeholder="123456">
             </div>
           </div>
 
@@ -215,8 +215,23 @@
 
     function togglePinInput() {
       const isAdmin = document.getElementById('isAdmin').checked;
-      document.getElementById('pin-container').style.display = isAdmin ? 'none' : 'block';
+      const pinContainer = document.getElementById('pin-container');
+      const pinInput = document.getElementById('pin');
+      
+      if (isAdmin) {
+        pinContainer.style.display = 'none';
+        pinInput.removeAttribute('required');
+        pinInput.value = '';
+      } else {
+        pinContainer.style.display = 'block';
+        pinInput.setAttribute('required', 'true');
+      }
     }
+
+    // Jalankan saat halaman pertama kali dimuat untuk menyesuaikan status awal checkbox
+    document.addEventListener('DOMContentLoaded', () => {
+      togglePinInput();
+    });
 
     function togglePasswordVisibility() {
       const pass = document.getElementById('password');
