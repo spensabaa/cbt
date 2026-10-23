@@ -1,661 +1,424 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CBT SMPN 1 Bangsal</title>
-
+  
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- FontAwesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <!-- SweetAlert2 -->
+  <!-- FontAwesome CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- SweetAlert2 CDN -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <!-- Supabase JS Client v2 -->
+  <!-- Supabase JS Client CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- Cloudinary Upload Widget -->
+  <!-- Cloudinary Upload Widget CDN -->
   <script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"></script>
 
   <style>
-    .glass-panel {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
+    .bg-custom-app {
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
     }
   </style>
 </head>
-<body class="bg-slate-100 min-h-screen text-slate-800 font-sans antialiased">
+<body class="bg-gray-100 font-sans text-gray-800 min-h-screen flex flex-col">
 
-  <!-- APP CONTAINER -->
-  <div id="app" class="min-h-screen flex flex-col">
-
-    <!-- NAVBAR HEADER -->
-    <header class="bg-indigo-700 text-white shadow-md">
-      <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-        <div class="flex items-center space-x-3">
-          <div class="bg-white text-indigo-700 p-2 rounded-lg font-bold text-xl">
-            <i class="fa-solid fa-graduation-cap"></i>
-          </div>
-          <div>
-            <h1 class="font-bold text-lg leading-tight" id="header-app-name">CBT SMPN 1 Bangsal</h1>
-            <p class="text-xs text-indigo-200">Sistem Ujian Online Berbasis Cloud</p>
-          </div>
-        </div>
-
-        <div id="user-nav-profile" class="hidden items-center space-x-4">
-          <div class="text-right">
-            <p class="text-sm font-semibold" id="nav-user-name">User Name</p>
-            <span class="text-xs bg-indigo-500 px-2 py-0.5 rounded-full" id="nav-user-role">Siswa</span>
-          </div>
-          <button onclick="logout()" class="bg-red-500 hover:bg-red-600 px-3 py-1.5 rounded-lg text-sm transition">
-            <i class="fa-solid fa-right-from-bracket mr-1"></i> Keluar
-          </button>
+  <!-- NAVBAR HEADER -->
+  <header class="bg-indigo-700 text-white shadow-md">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <i class="fa-solid fa-graduation-cap text-3xl"></i>
+        <div>
+          <h1 id="app-title" class="font-bold text-lg leading-tight">CBT SMPN 1 Bangsal</h1>
+          <p id="app-subtitle" class="text-xs text-indigo-200">Sistem Ujian Online Berbasis Cloud</p>
         </div>
       </div>
-    </header>
+      <div id="user-info-bar" class="hidden flex items-center space-x-4">
+        <span id="user-display-name" class="text-sm font-semibold"></span>
+        <button onclick="handleLogout()" class="bg-red-500 hover:bg-red-600 px-3 py-1 text-xs rounded shadow transition">
+          <i class="fa-solid fa-right-from-bracket mr-1"></i>Keluar
+        </button>
+      </div>
+    </div>
+  </header>
 
-    <!-- MAIN CONTENT VIEW -->
-    <main class="flex-grow max-w-7xl w-full mx-auto p-4">
-
-      <!-- VIEW 1: LOGIN -->
-      <section id="view-login" class="flex items-center justify-center py-12">
-        <div class="glass-panel p-8 rounded-2xl shadow-xl w-full max-w-md border border-slate-200">
-          <div class="text-center mb-6">
-            <div class="inline-block p-4 bg-indigo-50 rounded-full text-indigo-600 mb-2">
-              <i class="fa-solid fa-user-lock text-3xl"></i>
-            </div>
-            <h2 class="text-2xl font-bold text-slate-800">Masuk Akun</h2>
-            <p class="text-sm text-slate-500">Silakan login untuk memulai sesi CBT</p>
-          </div>
-
-          <form id="form-login" onsubmit="handleLogin(event)" class="space-y-4">
-            <div>
-              <label class="block text-sm font-medium mb-1">Username / User ID</label>
-              <div class="relative">
-                <span class="absolute left-3 top-3 text-slate-400"><i class="fa-solid fa-user"></i></span>
-                <input type="text" id="login-userid" required placeholder="Masukkan ID User" 
-                       class="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" />
-              </div>
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium mb-1">Password</label>
-              <div class="relative">
-                <span class="absolute left-3 top-3 text-slate-400"><i class="fa-solid fa-key"></i></span>
-                <input type="password" id="login-password" required placeholder="Masukkan Password" 
-                       class="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" />
-              </div>
-            </div>
-
-            <button type="submit" 
-                    class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 rounded-lg shadow transition">
-              <i class="fa-solid fa-right-to-bracket mr-2"></i> Masuk Sistem
-            </button>
-          </form>
-
-          <div class="mt-6 pt-4 border-t text-xs text-center text-slate-400">
-            &copy; CBT SMPN 1 Bangsal - Powered by Supabase & Cloudinary
-          </div>
+  <!-- MAIN CONTAINER -->
+  <main id="main-content" class="flex-grow flex items-center justify-center p-4">
+    
+    <!-- 1. FORM LOGIN -->
+    <div id="login-card" class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md border border-gray-100">
+      <div class="text-center mb-6">
+        <div class="inline-block bg-indigo-100 p-4 rounded-full mb-3">
+          <i class="fa-solid fa-user-lock text-indigo-600 text-3xl"></i>
         </div>
-      </section>
-
-      <!-- VIEW 2: DASHBOARD ADMIN / GURU -->
-      <section id="view-admin" class="hidden space-y-6">
-        <div class="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border">
-          <div>
-            <h2 class="text-xl font-bold text-slate-800">Panel Kelola CBT</h2>
-            <p class="text-xs text-slate-500">Tambah jadwal ujian, bank soal, dan upload gambar ke Cloudinary</p>
-          </div>
-          <button onclick="showCreateExamModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow">
-            <i class="fa-solid fa-plus mr-1"></i> Buat Ujian Baru
-          </button>
-        </div>
-
-        <!-- Daftar Ujian & Kelola Soal -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <!-- List Ujian -->
-          <div class="bg-white p-4 rounded-xl shadow-sm border lg:col-span-1">
-            <h3 class="font-bold border-b pb-2 mb-3"><i class="fa-solid fa-list-check mr-2 text-indigo-600"></i>Daftar Ujian</h3>
-            <div id="exam-list" class="space-y-3 max-h-[500px] overflow-y-auto pr-1">
-              <p class="text-sm text-slate-400 text-center py-4">Memuat daftar ujian...</p>
-            </div>
-          </div>
-
-          <!-- Form Input Soal -->
-          <div class="bg-white p-4 rounded-xl shadow-sm border lg:col-span-2">
-            <h3 class="font-bold border-b pb-2 mb-3"><i class="fa-solid fa-file-pen mr-2 text-indigo-600"></i>Kelola Soal Ujian</h3>
-            
-            <div id="no-exam-selected" class="text-center py-12 text-slate-400">
-              <i class="fa-solid fa-hand-pointer text-4xl mb-2"></i>
-              <p>Pilih salah satu ujian dari daftar di samping untuk menambahkan soal.</p>
-            </div>
-
-            <form id="form-question" onsubmit="handleSaveQuestion(event)" class="hidden space-y-4">
-              <input type="hidden" id="q-exam-id" />
-              
-              <div class="flex justify-between items-center bg-indigo-50 p-3 rounded-lg text-indigo-800">
-                <span class="font-semibold text-sm" id="active-exam-title">Ujian Aktif: -</span>
-                <span class="text-xs bg-indigo-200 px-2 py-1 rounded" id="active-exam-class">Kelas: -</span>
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium mb-1">Pertanyaan / Soal</label>
-                <textarea id="q-content" rows="3" required placeholder="Tuliskan isi pertanyaan..." 
-                          class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm"></textarea>
-              </div>
-
-              <!-- UPLOAD GAMBAR SOAL VIA CLOUDINARY -->
-              <div>
-                <label class="block text-sm font-medium mb-1">Gambar Soal (Opsional - Cloudinary)</label>
-                <div class="flex items-center space-x-2">
-                  <input type="text" id="q-image-url" readonly placeholder="URL Gambar Cloudinary..." 
-                         class="flex-grow p-2 border rounded-lg text-sm bg-slate-50" />
-                  <button type="button" onclick="openCloudinaryWidget()" 
-                          class="bg-sky-600 hover:bg-sky-700 text-white px-3 py-2 rounded-lg text-sm whitespace-nowrap">
-                    <i class="fa-solid fa-cloud-arrow-up mr-1"></i> Upload
-                  </button>
-                </div>
-                <div id="q-image-preview" class="mt-2 hidden">
-                  <img id="img-preview-src" src="" alt="Preview Gambar" class="h-32 object-contain border rounded-lg bg-slate-100 p-1" />
-                </div>
-              </div>
-
-              <!-- Pilihan Jawaban PG -->
-              <div class="space-y-2">
-                <label class="block text-sm font-medium">Pilihan Jawaban & Kunci</label>
-                <div class="grid grid-cols-1 gap-2">
-                  <div class="flex items-center space-x-2">
-                    <input type="radio" name="correct_opt" value="A" required />
-                    <span class="font-bold text-sm w-4">A.</span>
-                    <input type="text" id="opt-a" required placeholder="Jawaban A" class="w-full p-2 border rounded-lg text-sm" />
-                  </div>
-                  <div class="flex items-center space-x-2">
-                    <input type="radio" name="correct_opt" value="B" />
-                    <span class="font-bold text-sm w-4">B.</span>
-                    <input type="text" id="opt-b" required placeholder="Jawaban B" class="w-full p-2 border rounded-lg text-sm" />
-                  </div>
-                  <div class="flex items-center space-x-2">
-                    <input type="radio" name="correct_opt" value="C" />
-                    <span class="font-bold text-sm w-4">C.</span>
-                    <input type="text" id="opt-c" required placeholder="Jawaban C" class="w-full p-2 border rounded-lg text-sm" />
-                  </div>
-                  <div class="flex items-center space-x-2">
-                    <input type="radio" name="correct_opt" value="D" />
-                    <span class="font-bold text-sm w-4">D.</span>
-                    <input type="text" id="opt-d" required placeholder="Jawaban D" class="w-full p-2 border rounded-lg text-sm" />
-                  </div>
-                </div>
-              </div>
-
-              <div class="pt-2 flex justify-end space-x-2">
-                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
-                  <i class="fa-solid fa-floppy-disk mr-1"></i> Simpan Soal
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </section>
-
-      <!-- VIEW 3: DASHBOARD SISWA & UJIAN -->
-      <section id="view-student" class="hidden space-y-6">
-        <!-- Daftar Ujian Siswa -->
-        <div id="student-exam-selector" class="bg-white p-6 rounded-xl shadow-sm border space-y-4">
-          <h2 class="text-xl font-bold text-slate-800 border-b pb-2">Jadwal Ujian Tersedia</h2>
-          <div id="student-exam-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <p class="text-slate-400 text-sm col-span-full">Memuat jadwal ujian...</p>
-          </div>
-        </div>
-
-        <!-- Mode Pengerjaan Ujian -->
-        <div id="student-exam-interface" class="hidden space-y-4">
-          <div class="bg-white p-4 rounded-xl shadow-sm border flex flex-wrap justify-between items-center gap-4">
-            <div>
-              <h3 class="text-lg font-bold text-slate-800" id="active-exam-name-student">Ujian</h3>
-              <p class="text-xs text-slate-500">Silakan jawab seluruh soal dengan teliti.</p>
-            </div>
-            <div class="bg-red-50 text-red-600 border border-red-200 font-mono font-bold px-4 py-2 rounded-lg text-lg flex items-center space-x-2">
-              <i class="fa-regular fa-clock"></i>
-              <span id="exam-timer">00:00:00</span>
-            </div>
-          </div>
-
-          <div id="questions-container" class="space-y-6">
-            <!-- Soal-soal akan dirender secara dinamis -->
-          </div>
-
-          <div class="bg-white p-4 rounded-xl shadow-sm border flex justify-between items-center">
-            <p class="text-xs text-slate-500">Pastikan seluruh soal telah dijawab sebelum mengirim.</p>
-            <button onclick="submitExamAnswers()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2.5 rounded-lg shadow">
-              <i class="fa-solid fa-paper-plane mr-2"></i> Selesai & Kirim
-            </button>
-          </div>
-        </div>
-      </section>
-
-    </main>
-  </div>
-
-  <!-- MODAL: BUAT UJIAN BARU -->
-  <div id="modal-exam" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 space-y-4">
-      <div class="flex justify-between items-center border-b pb-2">
-        <h3 class="font-bold text-lg text-slate-800">Tambah Jadwal Ujian</h3>
-        <button onclick="closeExamModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+        <h2 class="text-2xl font-bold text-gray-800">Masuk Akun</h2>
+        <p class="text-xs text-gray-500 mt-1">Silakan login untuk memulai sesi CBT</p>
       </div>
 
-      <form id="form-create-exam" onsubmit="handleCreateExam(event)" class="space-y-3">
+      <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
         <div>
-          <label class="block text-xs font-semibold mb-1">Mata Pelajaran / Nama Ujian</label>
-          <input type="text" id="m-subject" required placeholder="Contoh: IPA Kelas IX" class="w-full p-2 border rounded-lg text-sm" />
-        </div>
-        <div>
-          <label class="block text-xs font-semibold mb-1">Kelas</label>
-          <input type="text" id="m-class" required placeholder="Contoh: IX-A" class="w-full p-2 border rounded-lg text-sm" />
-        </div>
-        <div class="grid grid-cols-2 gap-2">
-          <div>
-            <label class="block text-xs font-semibold mb-1">Durasi (Menit)</label>
-            <input type="number" id="m-duration" value="60" required class="w-full p-2 border rounded-lg text-sm" />
-          </div>
-          <div>
-            <label class="block text-xs font-semibold mb-1">PIN Ujian</label>
-            <input type="text" id="m-pin" value="123456" required class="w-full p-2 border rounded-lg text-sm" />
+          <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Username / User ID</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+              <i class="fa-solid fa-user"></i>
+            </span>
+            <input type="text" id="username" required class="w-full pl-10 pr-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-indigo-500" placeholder="Masukkan ID User">
           </div>
         </div>
-        <div class="pt-2 flex justify-end space-x-2">
-          <button type="button" onclick="closeExamModal()" class="px-4 py-2 border rounded-lg text-sm">Batal</button>
-          <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium">Simpan Jadwal</button>
+
+        <div>
+          <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Password</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+              <i class="fa-solid fa-key"></i>
+            </span>
+            <input type="password" id="password" required class="w-full pl-10 pr-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-indigo-500" placeholder="Masukkan Password">
+          </div>
         </div>
+
+        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-lg shadow-md hover:shadow-lg transition">
+          <i class="fa-solid fa-right-to-bracket mr-2"></i>Masuk Sistem
+        </button>
       </form>
     </div>
-  </div>
+
+    <!-- 2. DASHBOARD ADMIN / GURU -->
+    <div id="admin-dashboard" class="hidden w-full max-w-6xl space-y-6 my-6">
+      <div class="bg-white p-6 rounded-xl shadow border flex justify-between items-center">
+        <div>
+          <h2 class="text-xl font-bold text-gray-800">Panel Kelola Soal Ujian</h2>
+          <p class="text-xs text-gray-500">Kelola bank soal dan gambar via Supabase & Cloudinary</p>
+        </div>
+        <button onclick="openQuestionModal()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow">
+          <i class="fa-solid fa-plus mr-1"></i>Tambah Soal Baru
+        </button>
+      </div>
+
+      <!-- Tabel Daftar Soal -->
+      <div class="bg-white rounded-xl shadow border overflow-hidden">
+        <table class="w-full text-left text-sm border-collapse">
+          <thead class="bg-gray-50 border-b">
+            <tr>
+              <th class="p-3 font-semibold text-gray-600">ID Soal</th>
+              <th class="p-3 font-semibold text-gray-600">ID Ujian</th>
+              <th class="p-3 font-semibold text-gray-600">Tipe</th>
+              <th class="p-3 font-semibold text-gray-600">Isi Soal</th>
+              <th class="p-3 font-semibold text-gray-600">Gambar</th>
+              <th class="p-3 font-semibold text-gray-600">Kunci Jawaban</th>
+              <th class="p-3 font-semibold text-gray-600 text-center">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="question-table-body" class="divide-y">
+            <tr>
+              <td colspan="7" class="p-4 text-center text-gray-400">Memuat data soal...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 3. MODAL TAMBAH/EDIT SOAL -->
+    <div id="question-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl overflow-hidden">
+        <div class="bg-indigo-700 px-6 py-4 text-white flex justify-between items-center">
+          <h3 class="font-bold">Form Input Soal Ujian</h3>
+          <button onclick="closeQuestionModal()" class="text-indigo-200 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+        </div>
+        <form onsubmit="saveQuestion(event)" class="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-gray-600 uppercase mb-1">ID Ujian</label>
+              <input type="text" id="form-exam-id" required class="w-full p-2 border rounded text-sm" placeholder="Contoh: MAT-9">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Tipe Soal</label>
+              <select id="form-question-type" class="w-full p-2 border rounded text-sm">
+                <option value="PG">Pilihan Ganda (PG)</option>
+                <option value="BS">Benar / Salah</option>
+                <option value="Esai">Esai / Isian</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Isi Soal Pertanyaan</label>
+            <textarea id="form-question-content" rows="3" required class="w-full p-2 border rounded text-sm" placeholder="Tuliskan teks pertanyaan..."></textarea>
+          </div>
+
+          <!-- UPLOAD CLOUDINARY -->
+          <div>
+            <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Gambar Soal (Cloudinary)</label>
+            <div class="flex space-x-2">
+              <input type="text" id="form-image-url" readonly class="flex-grow p-2 border bg-gray-50 rounded text-sm" placeholder="URL Gambar Cloudinary">
+              <button type="button" onclick="openCloudinaryWidget()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-xs font-semibold">
+                <i class="fa-solid fa-cloud-arrow-up mr-1"></i>Upload Gambar
+              </button>
+            </div>
+          </div>
+
+          <div id="image-preview-container" class="hidden mt-2">
+            <img id="image-preview" src="" class="max-h-32 rounded border shadow-sm">
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Kunci Jawaban</label>
+            <input type="text" id="form-correct-answer" required class="w-full p-2 border rounded text-sm" placeholder="Kunci Jawaban (misal: A)">
+          </div>
+
+          <div class="flex justify-end space-x-2 pt-4 border-t">
+            <button type="button" onclick="closeQuestionModal()" class="px-4 py-2 border rounded text-sm font-semibold text-gray-600 hover:bg-gray-100">Batal</button>
+            <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-sm font-semibold shadow">Simpan Soal</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 4. DASHBOARD SISWA -->
+    <div id="siswa-dashboard" class="hidden w-full max-w-2xl bg-white p-6 rounded-xl shadow border space-y-4">
+      <div class="border-b pb-4">
+        <h2 class="text-xl font-bold text-gray-800">Ruang Ujian Siswa</h2>
+        <p class="text-xs text-gray-500">Selamat datang di portal CBT SMPN 1 Bangsal</p>
+      </div>
+      <div id="exam-list" class="space-y-3">
+        <p class="text-sm text-gray-500">Tidak ada jadwal ujian aktif saat ini.</p>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-white border-t py-3 text-center text-xs text-gray-500">
+    © CBT SMPN 1 Bangsal — Powered by Supabase & Cloudinary
+  </footer>
 
   <!-- SCRIPT LOGIKA APLIKASI -->
   <script>
-    // =========================================================
+    // =========================================================================
     // 1. KONFIGURASI KREDENSIAL SUPABASE & CLOUDINARY
-    // =========================================================
+    // =========================================================================
     const SUPABASE_URL = "https://mcmtezrqxyefeqbckzim.supabase.co";
     const SUPABASE_KEY = "sb_publishable_gv8QoQPBse2LxuxUvX7bUw_N6blbilz"; 
     const CLOUDINARY_CLOUD_NAME = "v00gekff";
     const CLOUDINARY_UPLOAD_PRESET = "ml_default";
 
-    // Inisialisasi Client Supabase
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    // Inisialisasi Client Supabase (Menggunakan variabel 'db' agar tidak terjadi bentrokan nama deklarasi)
+    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // State Aplikasi
-    let currentUser = null;
-    let selectedExamForQuestion = null;
-    let activeQuestions = [];
-    let examTimerInterval = null;
+    // Dynamic Cloudinary Widget Object
+    let cloudinaryWidget;
 
-    // =========================================================
-    // 2. LOGIKA AUTENTIKASI (LOGIN & LOGOUT)
-    // =========================================================
-    async function handleLogin(e) {
-      e.preventDefault();
-      const userId = document.getElementById('login-userid').value.trim();
-      const password = document.getElementById('login-password').value.trim();
+    // =========================================================================
+    // 2. INISIALISASI APLIKASI
+    // =========================================================================
+    document.addEventListener('DOMContentLoaded', () => {
+      initCloudinary();
+      checkSession();
+    });
 
-      Swal.fire({ title: 'Memverifikasi...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-
-      try {
-        const { data, error } = await supabase
-          .from('users')
-          .select('*')
-          .eq('user_id', userId)
-          .eq('password', password)
-          .maybeSingle();
-
-        if (error) throw error;
-
-        if (!data) {
-          Swal.fire('Gagal Login', 'User ID atau Password tidak cocok.', 'error');
-          return;
-        }
-
-        if (!data.is_active) {
-          Swal.fire('Akses Ditolak', 'Akun Anda sedang dinonaktifkan.', 'warning');
-          return;
-        }
-
-        currentUser = data;
-        localStorage.setItem('cbt_user_session', JSON.stringify(currentUser));
-        Swal.close();
-        renderDashboard();
-
-      } catch (err) {
-        Swal.fire('Error', err.message || 'Terjadi kesalahan sistem', 'error');
+    function initCloudinary() {
+      if (window.cloudinary) {
+        cloudinaryWidget = window.cloudinary.createUploadWidget({
+          cloudName: CLOUDINARY_CLOUD_NAME,
+          uploadPreset: CLOUDINARY_UPLOAD_PRESET,
+          sources: ['local', 'camera', 'url'],
+          multiple: false,
+          folder: 'cbt_spensaba'
+        }, (error, result) => {
+          if (!error && result && result.event === "success") {
+            const imageUrl = result.info.secure_url;
+            document.getElementById('form-image-url').value = imageUrl;
+            
+            const preview = document.getElementById('image-preview');
+            preview.src = imageUrl;
+            document.getElementById('image-preview-container').classList.remove('hidden');
+          }
+        });
       }
     }
 
-    function logout() {
-      localStorage.removeItem('cbt_user_session');
-      currentUser = null;
-      if (examTimerInterval) clearInterval(examTimerInterval);
-      showView('view-login');
-      document.getElementById('user-nav-profile').classList.add('hidden');
+    function openCloudinaryWidget() {
+      if (cloudinaryWidget) {
+        cloudinaryWidget.open();
+      } else {
+        Swal.fire('Error', 'Widget Cloudinary belum siap!', 'error');
+      }
+    }
+
+    // =========================================================================
+    // 3. FUNGSI AUTENTIKASI & LOGOUT
+    // =========================================================================
+    async function handleLogin(e) {
+      if (e) e.preventDefault();
+      
+      const usernameInput = document.getElementById('username').value.trim();
+      const passwordInput = document.getElementById('password').value.trim();
+
+      if (!usernameInput || !passwordInput) {
+        Swal.fire('Peringatan', 'Silakan isi Username dan Password', 'warning');
+        return;
+      }
+
+      // Query ke Supabase tabel 'users'
+      const { data, error } = await db
+        .from('users')
+        .select('*')
+        .eq('user_id', usernameInput)
+        .eq('password', passwordInput)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Login Error:', error);
+        Swal.fire('Error', 'Gagal terhubung ke database', 'error');
+        return;
+      }
+
+      if (!data) {
+        Swal.fire('Gagal Login', 'Username atau Password salah!', 'error');
+        return;
+      }
+
+      // Simpan Sesi
+      localStorage.setItem('cbt_user', JSON.stringify(data));
+      showAuthenticatedUI(data);
     }
 
     function checkSession() {
-      const session = localStorage.getItem('cbt_user_session');
-      if (session) {
-        currentUser = JSON.parse(session);
-        renderDashboard();
+      const savedUser = localStorage.getItem('cbt_user');
+      if (savedUser) {
+        const user = JSON.parse(savedUser);
+        showAuthenticatedUI(user);
+      }
+    }
+
+    function showAuthenticatedUI(user) {
+      document.getElementById('login-card').classList.add('hidden');
+      document.getElementById('user-info-bar').classList.remove('hidden');
+      document.getElementById('user-display-name').textContent = `${user.nama} (${user.role})`;
+
+      if (user.role === 'Admin' || user.role === 'Guru') {
+        document.getElementById('admin-dashboard').classList.remove('hidden');
+        loadQuestions();
       } else {
-        showView('view-login');
+        document.getElementById('siswa-dashboard').classList.remove('hidden');
       }
     }
 
-    // =========================================================
-    // 3. NAVIGASI TAMPILAN
-    // =========================================================
-    function showView(viewId) {
-      ['view-login', 'view-admin', 'view-student'].forEach(id => {
-        document.getElementById(id).classList.add('hidden');
-      });
-      document.getElementById(viewId).classList.remove('hidden');
+    function handleLogout() {
+      localStorage.removeItem('cbt_user');
+      location.reload();
     }
 
-    function renderDashboard() {
-      document.getElementById('user-nav-profile').classList.remove('hidden');
-      document.getElementById('user-nav-profile').classList.add('flex');
-      document.getElementById('nav-user-name').innerText = currentUser.nama;
-      document.getElementById('nav-user-role').innerText = currentUser.role;
+    // =========================================================================
+    // 4. KELOLA DATA SOAL (ADMIN/GURU)
+    // =========================================================================
+    async function loadQuestions() {
+      const tbody = document.getElementById('question-table-body');
+      tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-gray-400">Memuat data soal...</td></tr>`;
 
-      if (currentUser.role === 'Admin' || currentUser.role === 'Guru') {
-        showView('view-admin');
-        loadExamsAdmin();
-      } else {
-        showView('view-student');
-        loadExamsStudent();
-      }
-    }
-
-    // =========================================================
-    // 4. CLOUDINARY UPLOAD WIDGET
-    // =========================================================
-    function openCloudinaryWidget() {
-      cloudinary.openUploadWidget({
-        cloudName: CLOUDINARY_CLOUD_NAME,
-        uploadPreset: CLOUDINARY_UPLOAD_PRESET,
-        sources: ['local', 'url', 'camera'],
-        multiple: false,
-        folder: 'cbt_smpn1bangsal'
-      }, (error, result) => {
-        if (!error && result && result.event === "success") {
-          const imageUrl = result.info.secure_url;
-          document.getElementById('q-image-url').value = imageUrl;
-          document.getElementById('img-preview-src').src = imageUrl;
-          document.getElementById('q-image-preview').classList.remove('hidden');
-        }
-      });
-    }
-
-    // =========================================================
-    // 5. LOGIKA ADMIN / GURU
-    // =========================================================
-    async function loadExamsAdmin() {
-      const examContainer = document.getElementById('exam-list');
-      examContainer.innerHTML = '<p class="text-sm text-slate-400 text-center py-4">Memuat data...</p>';
-
-      const { data, error } = await supabase.from('exams').select('*').order('created_at', { ascending: false });
-
-      if (error) {
-        examContainer.innerHTML = `<p class="text-xs text-red-500">Error: ${error.message}</p>`;
-        return;
-      }
-
-      if (data.length === 0) {
-        examContainer.innerHTML = '<p class="text-sm text-slate-400 text-center py-4">Belum ada ujian.</p>';
-        return;
-      }
-
-      examContainer.innerHTML = data.map(exam => `
-        <div onclick="selectExamForQuestions('${exam.exam_id}', '${exam.subject}', '${exam.class}')" 
-             class="p-3 border rounded-lg hover:border-indigo-500 cursor-pointer transition bg-slate-50 hover:bg-indigo-50/50 flex justify-between items-center">
-          <div>
-            <h4 class="font-bold text-sm text-slate-800">${exam.subject}</h4>
-            <p class="text-xs text-slate-500">Kelas: ${exam.class} | Durasi: ${exam.duration} mnt</p>
-          </div>
-          <span class="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded font-semibold">PIN: ${exam.pin}</span>
-        </div>
-      `).join('');
-    }
-
-    function selectExamForQuestions(examId, subject, className) {
-      selectedExamForQuestion = examId;
-      document.getElementById('no-exam-selected').classList.add('hidden');
-      document.getElementById('form-question').classList.remove('hidden');
-      document.getElementById('active-exam-title').innerText = `Ujian Aktif: ${subject}`;
-      document.getElementById('active-exam-class').innerText = `Kelas: ${className}`;
-      document.getElementById('q-exam-id').value = examId;
-    }
-
-    async function handleSaveQuestion(e) {
-      e.preventDefault();
-      const examId = document.getElementById('q-exam-id').value;
-      const content = document.getElementById('q-content').value;
-      const imageUrl = document.getElementById('q-image-url').value;
-      const correctOpt = document.querySelector('input[name="correct_opt"]:checked');
-
-      if (!correctOpt) {
-        Swal.fire('Peringatan', 'Pilih kunci jawaban yang benar!', 'warning');
-        return;
-      }
-
-      const options = [
-        { key: 'A', text: document.getElementById('opt-a').value },
-        { key: 'B', text: document.getElementById('opt-b').value },
-        { key: 'C', text: document.getElementById('opt-c').value },
-        { key: 'D', text: document.getElementById('opt-d').value }
-      ];
-
-      const questionId = 'Q-' + Date.now();
-
-      Swal.fire({ title: 'Menyimpan Soal...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-
-      const { error } = await supabase.from('questions').insert([{
-        question_id: questionId,
-        exam_id: examId,
-        type: 'PG',
-        content: content,
-        image_url: imageUrl || null,
-        options: options,
-        correct_answer: correctOpt.value,
-        point: 10
-      }]);
-
-      if (error) {
-        Swal.fire('Error', error.message, 'error');
-      } else {
-        Swal.fire('Sukses', 'Soal berhasil ditambahkan!', 'success');
-        document.getElementById('form-question').reset();
-        document.getElementById('q-image-preview').classList.add('hidden');
-      }
-    }
-
-    function showCreateExamModal() {
-      document.getElementById('modal-exam').classList.remove('hidden');
-    }
-
-    function closeExamModal() {
-      document.getElementById('modal-exam').classList.add('hidden');
-    }
-
-    async function handleCreateExam(e) {
-      e.preventDefault();
-      const subject = document.getElementById('m-subject').value;
-      const className = document.getElementById('m-class').value;
-      const duration = parseInt(document.getElementById('m-duration').value);
-      const pin = document.getElementById('m-pin').value;
-      const examId = 'EXAM-' + Date.now();
-
-      const { error } = await supabase.from('exams').insert([{
-        exam_id: examId,
-        subject: subject,
-        class: className,
-        duration: duration,
-        pin: pin,
-        status: 'Aktif'
-      }]);
-
-      if (error) {
-        Swal.fire('Error', error.message, 'error');
-      } else {
-        Swal.fire('Sukses', 'Jadwal Ujian Berhasil Dibuat', 'success');
-        closeExamModal();
-        loadExamsAdmin();
-      }
-    }
-
-    // =========================================================
-    // 6. LOGIKA UJIAN SISWA
-    // =========================================================
-    async function loadExamsStudent() {
-      const container = document.getElementById('student-exam-list');
-      container.innerHTML = '<p class="text-sm text-slate-400 col-span-full">Memuat jadwal ujian...</p>';
-
-      const { data, error } = await supabase.from('exams').select('*').eq('status', 'Aktif');
-
-      if (error || !data || data.length === 0) {
-        container.innerHTML = '<p class="text-sm text-slate-400 col-span-full">Tidak ada ujian yang sedang aktif.</p>';
-        return;
-      }
-
-      container.innerHTML = data.map(exam => `
-        <div class="p-4 border rounded-xl bg-slate-50 hover:bg-white hover:shadow-md transition space-y-3">
-          <div>
-            <h4 class="font-bold text-base text-slate-800">${exam.subject}</h4>
-            <p class="text-xs text-slate-500">Kelas Target: ${exam.class} | Durasi: ${exam.duration} Menit</p>
-          </div>
-          <button onclick="startExamPrompt('${exam.exam_id}', '${exam.subject}', ${exam.duration}, '${exam.pin}')" 
-                  class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded-lg text-sm">
-            <i class="fa-solid fa-pen-to-square mr-1"></i> Ikuti Ujian
-          </button>
-        </div>
-      `).join('');
-    }
-
-    async function startExamPrompt(examId, subject, duration, correctPin) {
-      const { value: inputPin } = await Swal.fire({
-        title: 'Masukkan PIN Ujian',
-        input: 'text',
-        inputLabel: `Mata Pelajaran: ${subject}`,
-        inputPlaceholder: 'Ketik PIN Ujian...',
-        showCancelButton: true
-      });
-
-      if (inputPin) {
-        if (inputPin.trim() === correctPin) {
-          initiateStudentExam(examId, subject, duration);
-        } else {
-          Swal.fire('Gagal', 'PIN Ujian yang Anda masukkan salah!', 'error');
-        }
-      }
-    }
-
-    async function initiateStudentExam(examId, subject, durationMinutes) {
-      Swal.fire({ title: 'Memuat Soal Ujian...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-
-      const { data: questions, error } = await supabase
+      const { data, error } = await db
         .from('questions')
         .select('*')
-        .eq('exam_id', examId);
+        .order('question_id', { ascending: true });
 
-      if (error || !questions || questions.length === 0) {
-        Swal.fire('Informasi', 'Soal ujian belum tersedia untuk mata pelajaran ini.', 'info');
+      if (error) {
+        console.error(error);
+        tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-red-500">Gagal memuat data soal</td></tr>`;
         return;
       }
 
-      activeQuestions = questions;
-      Swal.close();
+      if (!data || data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-gray-400">Belum ada soal tersimpan</td></tr>`;
+        return;
+      }
 
-      document.getElementById('student-exam-selector').classList.add('hidden');
-      document.getElementById('student-exam-interface').classList.remove('hidden');
-      document.getElementById('active-exam-name-student').innerText = subject;
-
-      renderQuestions(activeQuestions);
-      startTimer(durationMinutes * 60);
-    }
-
-    function renderQuestions(questions) {
-      const container = document.getElementById('questions-container');
-      container.innerHTML = questions.map((q, idx) => `
-        <div class="bg-white p-5 rounded-xl shadow-sm border space-y-4" id="q-box-${q.question_id}">
-          <div class="flex items-start space-x-3">
-            <span class="bg-indigo-600 text-white text-xs font-bold px-2.5 py-1 rounded-md">${idx + 1}</span>
-            <div class="space-y-3 flex-grow">
-              <p class="text-sm font-medium text-slate-800">${q.content}</p>
-              ${q.image_url ? `<img src="${q.image_url}" class="max-h-64 object-contain rounded-lg border p-1 bg-slate-50" />` : ''}
-            </div>
-          </div>
-          
-          <div class="grid grid-cols-1 gap-2 pl-8">
-            ${(q.options || []).map(opt => `
-              <label class="flex items-center space-x-3 p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer text-sm">
-                <input type="radio" name="ans_${q.question_id}" value="${opt.key}" class="text-indigo-600" />
-                <span class="font-bold text-slate-600">${opt.key}.</span>
-                <span>${opt.text}</span>
-              </label>
-            `).join('')}
-          </div>
-        </div>
+      tbody.innerHTML = data.map(q => `
+        <tr class="hover:bg-gray-50 border-b">
+          <td class="p-3 font-mono text-xs">${q.question_id}</td>
+          <td class="p-3 font-semibold">${q.exam_id || '-'}</td>
+          <td class="p-3"><span class="px-2 py-0.5 bg-indigo-100 text-indigo-700 text-xs rounded-full font-bold">${q.type}</span></td>
+          <td class="p-3 max-w-xs truncate">${q.content}</td>
+          <td class="p-3">
+            ${q.image_url ? `<a href="${q.image_url}" target="_blank" class="text-blue-600 underline text-xs"><i class="fa-solid fa-image mr-1"></i>Lihat Gambar</a>` : '-'}
+          </td>
+          <td class="p-3 font-bold text-green-700">${q.correct_answer}</td>
+          <td class="p-3 text-center">
+            <button onclick="deleteQuestion('${q.question_id}')" class="text-red-500 hover:text-red-700 text-sm">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </td>
+        </tr>
       `).join('');
     }
 
-    function startTimer(seconds) {
-      let remaining = seconds;
-      const timerDisplay = document.getElementById('exam-timer');
-
-      examTimerInterval = setInterval(() => {
-        const h = Math.floor(remaining / 3600).toString().padStart(2, '0');
-        const m = Math.floor((remaining % 3600) / 60).toString().padStart(2, '0');
-        const s = (remaining % 60).toString().padStart(2, '0');
-
-        timerDisplay.innerText = `${h}:${m}:${s}`;
-
-        if (remaining <= 0) {
-          clearInterval(examTimerInterval);
-          Swal.fire('Waktu Habis', 'Waktu ujian telah berakhir. Jawaban Anda akan otomatis dikirim.', 'warning')
-            .then(() => submitExamAnswers());
-        }
-        remaining--;
-      }, 1000);
+    function openQuestionModal() {
+      document.getElementById('question-modal').classList.remove('hidden');
     }
 
-    async function submitExamAnswers() {
-      if (examTimerInterval) clearInterval(examTimerInterval);
-
-      let correctCount = 0;
-      let totalQuestions = activeQuestions.length;
-      let userAnswers = {};
-
-      activeQuestions.forEach(q => {
-        const selected = document.querySelector(`input[name="ans_${q.question_id}"]:checked`);
-        const ansVal = selected ? selected.value : null;
-        userAnswers[q.question_id] = ansVal;
-
-        if (ansVal === q.correct_answer) {
-          correctCount++;
-        }
-      });
-
-      const finalScore = Math.round((correctCount / totalQuestions) * 100);
-
-      Swal.fire({
-        title: 'Hasil Ujian',
-        html: `Ujian Selesai!<br>Skor Anda: <strong class="text-2xl text-indigo-600">${finalScore}</strong>`,
-        icon: 'success'
-      }).then(() => {
-        document.getElementById('student-exam-interface').classList.add('hidden');
-        document.getElementById('student-exam-selector').classList.remove('hidden');
-        loadExamsStudent();
-      });
+    function closeQuestionModal() {
+      document.getElementById('question-modal').classList.add('hidden');
+      document.getElementById('form-exam-id').value = '';
+      document.getElementById('form-question-content').value = '';
+      document.getElementById('form-image-url').value = '';
+      document.getElementById('form-correct-answer').value = '';
+      document.getElementById('image-preview-container').classList.add('hidden');
     }
 
-    // Inisialisasi Sesi Saat Aplikasi Dimuat
-    window.addEventListener('DOMContentLoaded', checkSession);
+    async function saveQuestion(e) {
+      e.preventDefault();
+
+      const newQuestion = {
+        question_id: 'Q-' + Date.now(),
+        exam_id: document.getElementById('form-exam-id').value.trim(),
+        type: document.getElementById('form-question-type').value,
+        content: document.getElementById('form-question-content').value.trim(),
+        image_url: document.getElementById('form-image-url').value.trim() || null,
+        correct_answer: document.getElementById('form-correct-answer').value.trim(),
+        point: 10
+      };
+
+      const { error } = await db
+        .from('questions')
+        .insert([newQuestion]);
+
+      if (error) {
+        console.error(error);
+        Swal.fire('Error', 'Gagal menyimpan soal ke database', 'error');
+        return;
+      }
+
+      Swal.fire('Berhasil', 'Soal baru berhasil disimpan!', 'success');
+      closeQuestionModal();
+      loadQuestions();
+    }
+
+    async function deleteQuestion(questionId) {
+      const confirm = await Swal.fire({
+        title: 'Hapus Soal?',
+        text: "Soal ini akan dihapus permanen!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Ya, Hapus!'
+      });
+
+      if (confirm.isConfirmed) {
+        const { error } = await db
+          .from('questions')
+          .delete()
+          .eq('question_id', questionId);
+
+        if (error) {
+          Swal.fire('Error', 'Gagal menghapus soal', 'error');
+        } else {
+          Swal.fire('Terhapus!', 'Soal berhasil dihapus.', 'success');
+          loadQuestions();
+        }
+      }
+    }
   </script>
 </body>
 </html>
