@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard Overview | SMPN 1 Bangsal</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f8fafc;
+      color: #334155;
+      user-select: none;
+      overflow-x: hidden;
+    }
+    h1, h2, h3, h4, h5, h6, .font-heading { font-family: 'Poppins', sans-serif; }
+    .fade-in { animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    .sidebar-bg { background: #1e293b; border-right: 1px solid rgba(255, 255, 255, 0.05); color: #cbd5e1; }
+    .sidebar-item {
+      position: relative; display: flex; align-items: center; padding: 12px 16px;
+      margin-bottom: 4px; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;
+      white-space: nowrap; font-weight: 500; font-size: 0.9rem; text-decoration: none; color: #cbd5e1;
+    }
+    .sidebar-item:hover { background: rgba(255, 255, 255, 0.08); color: #f1f5f9; }
+    .sidebar-item.active { background: #2563eb; color: #fff; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
+    .sidebar-item i { width: 24px; text-align: center; margin-right: 12px; font-size: 1.1rem; flex-shrink: 0; }
+    .dash-card {
+      background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02); overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .dash-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); border-color: #cbd5e1; }
+    .stat-card-icon {
+      width: 48px; height: 48px; border-radius: 12px; display: flex;
+      align-items: center; justify-content: center; font-size: 1.25rem;
+    }
+  </style>
+</head>
+<body class="overflow-x-hidden text-slate-800">
+
+  <div class="flex h-screen bg-slate-100 overflow-hidden">
+    
+    <!-- SIDEBAR NAVIGASI -->
+    <aside class="sidebar-bg w-72 h-full flex flex-col fixed md:relative z-40 transition-all duration-300 shadow-xl">
+      <div class="h-20 flex items-center justify-between border-b border-slate-700/50 px-6 bg-[#0f172a]">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-lg">
+            <i class="fas fa-graduation-cap text-xl"></i>
+          </div>
+          <div>
+            <h1 class="text-white font-bold text-sm tracking-tight">Ujian Online</h1>
+            <p class="text-[11px] text-slate-400">Admin Panel</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-4 mx-3 my-3 bg-slate-800/80 rounded-xl border border-slate-700/50 flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg bg-emerald-500 flex items-center justify-center text-white font-bold">A</div>
+        <div>
+          <h4 id="user-display-name" class="text-white text-xs font-bold">Admin Utama</h4>
+          <div class="flex items-center gap-1.5 mt-0.5"><span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span><span class="text-[11px] text-emerald-400">Online</span></div>
+        </div>
+      </div>
+
+      <nav class="flex-1 overflow-y-auto py-2 px-3 space-y-1">
+        <p class="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Main Menu</p>
+        <a href="dashboard.html" class="sidebar-item active"><i class="fas fa-home"></i> <span>Dashboard</span></a>
+        <a href="exams.html" class="sidebar-item"><i class="fas fa-calendar-days"></i> <span>Jadwal Ujian</span></a>
+        <a href="questions.html" class="sidebar-item"><i class="fas fa-book"></i> <span>Bank Soal</span></a>
+        <a href="results.html" class="sidebar-item"><i class="fas fa-chart-bar"></i> <span>Hasil & Nilai</span></a>
+        <a href="users.html" class="sidebar-item"><i class="fas fa-users"></i> <span>Manajemen User</span></a>
+        <a href="images.html" class="sidebar-item"><i class="fas fa-image"></i> <span>Folder Gambar</span></a>
+        <a href="configs.html" class="sidebar-item"><i class="fas fa-cogs"></i> <span>Konfigurasi</span></a>
+        <a href="master.html" class="sidebar-item"><i class="fas fa-database"></i> <span>Data Master</span></a>
+      </nav>
+
+      <div class="p-4 border-t border-slate-700/50">
+        <button onclick="logout()" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-red-200 bg-red-950/40 hover:bg-red-600 hover:text-white transition">
+          <i class="fas fa-sign-out-alt"></i> Keluar
+        </button>
+      </div>
+    </aside>
+
+    <!-- KONTEN UTAMA KANAN -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <header class="bg-white/80 backdrop-blur-md border-b border-slate-200 h-20 flex items-center justify-between px-8 z-30">
+        <h2 class="text-xl font-bold text-slate-800">Dashboard Overview</h2>
+        <div class="flex items-center gap-4">
+          <div class="text-right">
+            <div class="text-xs text-slate-400" id="current-date-display">Jumat, 23 Oktober 2026</div>
+            <div class="text-sm font-bold text-slate-700 font-mono" id="current-time-display">13.14.19</div>
+          </div>
+          <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 border border-slate-200 relative cursor-pointer hover:bg-slate-200 transition">
+            <i class="fas fa-bell"></i>
+            <span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-red-500"></span>
+          </div>
+        </div>
+      </header>
+
+      <main class="flex-1 overflow-auto p-8 bg-slate-50 space-y-6 fade-in">
+        
+        <!-- Top Banner Card -->
+        <div class="dash-card p-6 flex flex-col md:flex-row items-center justify-between gap-4 bg-white">
+          <div class="flex items-center gap-4">
+            <div class="w-14 h-14 rounded-2xl bg-blue-600 flex items-center justify-center text-white text-2xl shadow-lg shadow-blue-500/30">
+              <i class="fas fa-home"></i>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold text-slate-800">Dashboard Overview</h3>
+              <p class="text-sm text-slate-500">Selamat datang kembali, pantau aktivitas ujian hari ini.</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <button onclick="location.reload()" class="px-4 py-2 border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold rounded-xl text-sm flex items-center gap-2 transition">
+              <i class="fas fa-rotate"></i> Refresh
+            </button>
+            <button onclick="openModalJadwal()" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-sm shadow-lg shadow-blue-500/20 flex items-center gap-2 transition">
+              <i class="fas fa-plus"></i> Buat Ujian
+            </button>
+          </div>
+        </div>
+
+        <!-- 4 Stat Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div class="dash-card p-6 flex justify-between items-center">
+            <div>
+              <p class="text-[11px] uppercase tracking-wider text-slate-400 font-bold">Total Jadwal</p>
+              <h3 class="text-3xl font-black text-slate-800 mt-1">0</h3>
+              <div class="flex items-center gap-2 mt-2">
+                <span class="text-[11px] bg-blue-50 text-blue-600 font-bold px-2 py-0.5 rounded-full"><i class="fas fa-check-circle mr-1"></i> 0 Aktif</span>
+              </div>
+            </div>
+            <div class="stat-card-icon bg-blue-50 text-blue-600"><i class="fas fa-book"></i></div>
+          </div>
+
+          <div class="dash-card p-6 flex justify-between items-center">
+            <div>
+              <p class="text-[11px] uppercase tracking-wider text-slate-400 font-bold">Status Peserta</p>
+              <h3 class="text-3xl font-black text-slate-800 mt-1">Online</h3>
+              <div class="mt-2"><span class="text-[11px] bg-emerald-50 text-emerald-600 font-bold px-2.5 py-1 rounded-full"><i class="fas fa-wifi mr-1"></i> Sistem Stabil</span></div>
+            </div>
+            <div class="stat-card-icon bg-emerald-50 text-emerald-600"><i class="fas fa-users"></i></div>
+          </div>
+
+          <div class="dash-card p-6 flex justify-between items-center">
+            <div>
+              <p class="text-[11px] uppercase tracking-wider text-slate-400 font-bold">Bank Soal</p>
+              <h3 class="text-3xl font-black text-slate-800 mt-1">0</h3>
+              <div class="mt-2 text-xs text-slate-400 font-medium">Mapel terdaftar</div>
+            </div>
+            <div class="stat-card-icon bg-purple-50 text-purple-600"><i class="fas fa-database"></i></div>
+          </div>
+
+          <div class="dash-card p-6 flex justify-between items-center">
+            <div>
+              <p class="text-[11px] uppercase tracking-wider text-slate-400 font-bold">Mode Akses</p>
+              <h3 class="text-3xl font-black text-slate-800 mt-1">Admin</h3>
+              <div class="mt-2 text-xs text-slate-400 font-medium"><i class="fas fa-clock"></i> Aktif</div>
+            </div>
+            <div class="stat-card-icon bg-amber-50 text-amber-600"><i class="fas fa-user-shield"></i></div>
+          </div>
+        </div>
+
+        <!-- Aktivitas & Info Penting -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="dash-card p-6 lg:col-span-2">
+            <div class="flex justify-between items-center mb-6">
+              <h3 class="font-bold text-lg text-slate-800">Aktivitas Terkini</h3>
+              <a href="#" class="text-xs text-blue-600 font-bold hover:underline">Lihat Log Lengkap</a>
+            </div>
+            <div class="space-y-4 border-l-2 border-blue-100 ml-2 pl-4">
+              <div>
+                <div class="text-xs text-blue-600 font-bold">Baru saja</div>
+                <div class="font-bold text-sm text-slate-800 mt-0.5">Login Berhasil</div>
+                <div class="text-xs text-slate-500">Anda masuk sebagai Administrator.</div>
+              </div>
+              <div>
+                <div class="text-xs text-slate-400 font-bold">Hari ini</div>
+                <div class="font-bold text-sm text-slate-800 mt-0.5">Sinkronisasi Data</div>
+                <div class="text-xs text-slate-500">Mengambil data ujian terbaru dari database.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="dash-card p-6 bg-[#0f172a] text-white flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-2 mb-3">
+                <i class="fas fa-info-circle text-blue-400 text-lg"></i>
+                <h3 class="font-bold text-base">Informasi Penting</h3>
+              </div>
+              <p class="text-xs text-slate-300 leading-relaxed">Refresh Data setelah melakukan perubahan manual pada Database Supabase.</p>
+            </div>
+            <div class="mt-6 p-4 rounded-xl bg-slate-800/80 border border-slate-700">
+              <div class="flex items-center gap-2 text-yellow-400 font-bold text-xs mb-1">
+                <i class="fas fa-shield-alt"></i> Anti-Cheat
+              </div>
+              <p class="text-[11px] text-slate-400">Aktif otomatis untuk sesi siswa.</p>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- MODAL: BUAT JADWAL BARU -->
+  <div id="modal-buat-jadwal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden fade-in max-h-[90vh] flex flex-col">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-white">
+        <h3 class="font-bold text-slate-800 text-base flex items-center gap-2"><i class="fas fa-calendar-days text-blue-600"></i> Buat Jadwal Baru</h3>
+        <button onclick="closeModalJadwal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition"><i class="fas fa-xmark"></i></button>
+      </div>
+      <div class="p-6 overflow-y-auto space-y-4">
+        <div>
+          <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wide mb-1">Mata Pelajaran</label>
+          <select id="schedule-subject" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl bg-white outline-none">
+            <option value="">-- Pilih --</option>
+            <option value="Matematika">Matematika</option>
+            <option value="Bahasa Indonesia">Bahasa Indonesia</option>
+            <option value="Bahasa Inggris">Bahasa Inggris</option>
+            <option value="IPA">IPA</option>
+            <option value="IPS">IPS</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wide mb-1">PIN Sesi</label>
+          <input type="text" id="schedule-pin" readonly class="w-full px-4 py-2.5 text-sm border border-amber-200 rounded-xl bg-amber-50 font-bold text-slate-800 tracking-wider">
+        </div>
+      </div>
+      <div class="px-6 py-4 border-t border-slate-100 bg-slate-50">
+        <button onclick="saveSchedule()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold text-sm shadow-lg transition">Simpan Jadwal</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Validasi Sesi Login
+    document.addEventListener('DOMContentLoaded', () => {
+      const user = localStorage.getItem('cbt_user');
+      if (!user) {
+        window.location.href = 'index.html';
+        return;
+      }
+      const userData = JSON.parse(user);
+      if (document.getElementById('user-display-name')) {
+        document.getElementById('user-display-name').innerText = userData.username || 'Admin Utama';
+      }
+    });
+
+    // Clock & Date Display
+    setInterval(() => {
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('id-ID', { hour12: false }).replace(/:/g, '.');
+      const dateStr = now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+      if (document.getElementById('current-time-display')) document.getElementById('current-time-display').innerText = timeStr;
+      if (document.getElementById('current-date-display')) document.getElementById('current-date-display').innerText = dateStr;
+    }, 1000);
+
+    function openModalJadwal() {
+      document.getElementById('modal-buat-jadwal').classList.remove('hidden');
+      document.getElementById('schedule-pin').value = Math.floor(10000 + Math.random() * 90000);
+    }
+
+    function closeModalJadwal() {
+      document.getElementById('modal-buat-jadwal').classList.add('hidden');
+    }
+
+    function saveSchedule() {
+      Swal.fire('Berhasil', 'Jadwal ujian berhasil disimpan!', 'success');
+      closeModalJadwal();
+    }
+
+    function logout() {
+      localStorage.removeItem('cbt_user');
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>
